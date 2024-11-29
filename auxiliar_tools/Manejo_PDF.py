@@ -33,7 +33,7 @@ def verificar_pdf_valido(ruta_pdf):
         return False
 
 # Extrae texto de las paginas especificadas de un archivo PDF
-def extract_text_from_pdf(ruta_pdf,num_pags:int|list=[1,2]):
+def extract_text_from_pdf(ruta_pdf:str,num_pags:int|list):
 
     text = ''
     # Abrir el archivo PDF
