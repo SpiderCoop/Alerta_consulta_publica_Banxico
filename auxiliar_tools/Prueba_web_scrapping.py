@@ -24,8 +24,9 @@ from selenium.webdriver.chrome.service import Service
 
 import time
 
-# Funciones de descarga ------------------------------------------------------------------------------------------
+# Funciones ------------------------------------------------------------------------------------------
 
+# Funciones para configuracion del driver del navegador
 def configurar_driver(save_path:str):
     """
     Configura el driver de Selenium (utiliza Chrome en este caso).
@@ -48,7 +49,8 @@ def configurar_driver(save_path:str):
 
     return driver
 
-def obtener_consultas(driver, vigentes:bool=True):
+# Funcion para revisar la pagina de consultas publicas de Banxico
+def obtener_consultas_Banxico(driver, vigentes:bool=True):
     """
     Obtiene la lista de consultas públicas abiertas de la página de Banxico usando Selenium.
     """
@@ -93,10 +95,10 @@ def obtener_consultas(driver, vigentes:bool=True):
         
 
     # Extraer información de los proyectos de disposiciones
-    proyectos = []
+    consultas = []
     for li in li_elements:
         # Nombre del proyecto
-        nombre_proyecto = li.text.split("/n")[0]  # Primera línea es el nombre del proyecto
+        nombre_proyecto = li.text.split("\n")[0]  # Primera línea es el nombre del proyecto
 
         # Fecha límite
         fecha_limite = li.find_element(By.CSS_SELECTOR, "span").text.strip()
@@ -105,8 +107,8 @@ def obtener_consultas(driver, vigentes:bool=True):
         enlaces = li.find_elements(By.CSS_SELECTOR, "a.button")
         enlaces_descarga = {enlace.text.strip(): enlace.get_attribute("href") for enlace in enlaces}
 
-        # Agregar a la lista de proyectos
-        proyectos.append({
+        # Agregar a la lista de consultas
+        consultas.append({
             "nombre": nombre_proyecto,
             "fecha_limite": fecha_limite,
             "enlaces": enlaces_descarga
@@ -115,53 +117,31 @@ def obtener_consultas(driver, vigentes:bool=True):
     # Una vez terimando el proceso, cierra el navegador
     driver.quit()
     
-    return pd.DataFrame(proyectos)
+    return pd.DataFrame(consultas)
 
 
 
-
-def descargar_archivos(driver, consulta, carpeta_destino):
+# Funcion para descrgar archivos dada una url y destino de descarga
+def descargar_archivos(url, ruta_archivo):
     """
-    Descarga los archivos disponibles en una consulta específica utilizando Selenium.
+    Descarga los archivos disponibles en una consulta específica utilizando requests.
     """
-    driver.get(consulta['Enlace'])
-    archivos_descargados = []
+
+    # Realizar la solicitud HTTP para obtener el contenido de la página web
+    response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
     
-    # Esperar a que se carguen los enlaces de la consulta
-    time.sleep(5)  # Agregar una espera fija para asegurar que la página se cargue completamente
-    
-    # Buscar enlaces a archivos
-    enlaces = driver.find_elements(By.TAG_NAME, "a")
-    for enlace in enlaces:
-        href = enlace.get_attribute("href")
-        if href and href.endswith(('.pdf', '.xlsx', '.csv', '.zip', '.docx')):
-            nombre_archivo = href.split('/')[-1]
-            archivo_path = os.path.join(carpeta_destino, nombre_archivo)
-            
-            # Descargar el archivo
-            with open(archivo_path, 'wb') as f:
-                f.write(requests.get(href).content)
-            archivos_descargados.append(archivo_path)
-    
-    return archivos_descargados
+    # Verifica si la solicitud fue exitosa (código de estado 200)
+    if response.status_code == 200:
+        # Abre el archivo en modo binario y escribe los datos descargados
+        with open(ruta_archivo, 'wb') as f:
+            f.write(response.content)
 
-def procesar_archivos(archivos):
-    """
-    Procesa los archivos descargados según el tipo de archivo.
-    """
-    datos = []
-    for archivo in archivos:
-        ext = os.path.splitext(archivo)[-1].lower()
-        if ext == '.csv':
-            datos.append(pd.read_csv(archivo))
-        elif ext == '.xlsx':
-            datos.append(pd.read_excel(archivo))
-        # Puedes agregar más procesamientos específicos según el tipo de archivo
-        else:
-            print(f"Archivo {archivo} no procesado. Tipo no soportado.")
-    return datos
+    else:
+        raise FileNotFoundError("/n Error al descargar el archivo.")
 
 
+
+# Ejemplo de uso
 if __name__ == "__main__":
 
     # Variables para prueba
@@ -169,5 +149,11 @@ if __name__ == "__main__":
 
     # Configurar driver
     driver = configurar_driver(save_path)
-    consultas = obtener_consultas(driver, False)
+    consultas = obtener_consultas_Banxico(driver, False)
     consultas.to_csv('C:/ABM/Automatizacion/Alerta_consulta_publica_Banxico/Consultas_publicas/Consultas_historicas.csv', encoding='latin1')
+
+    #for consulta in consultas:
+    for nombre_archivo, enlace in consultas.loc[0,'enlaces'].items():
+        save_path = 'C:/ABM/Automatizacion/Alerta_consulta_publica_Banxico/Consultas_aux'
+        ruta_archivo = os.path.normpath(os.path.join(save_path, nombre_archivo)) + '.pdf'
+        descargar_archivos(enlace,ruta_archivo)
