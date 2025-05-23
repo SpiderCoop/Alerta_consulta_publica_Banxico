@@ -24,6 +24,26 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 import time
 
+# Funcion auxiliar -------------------------------
+
+
+def limpiar_caracteres(texto):
+    """
+    Elimina los acentos de un string utilizando expresiones regulares.
+    """
+    acentos = {
+        'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u',
+        'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U',
+        'ü': 'u', 'Ü': 'U',
+        'ñ': 'n', 'Ñ': 'N',
+        '/':'_', ':':'_',
+        '?':'', ',':''
+    }
+
+    # Reemplazar cada carácter acentuado por su equivalente sin acento
+    patron = re.compile('|'.join(re.escape(k) for k in acentos.keys()))
+    return patron.sub(lambda x: acentos[x.group()], texto)
+
 # Funciones ------------------------------------------------------------------------------------------
 
 def configurar_driver(directorio_descarga: str) -> webdriver.Chrome:
@@ -174,9 +194,16 @@ if __name__ == "__main__":
     # Configurar driver
     driver = configurar_driver(save_path)
     consultas = obtener_consultas_Banxico(driver, False)
+    
+    # Precede la ruta absoluta con \\?\ para habilitar rutas largas en Windows
+    save_path = '../Consultas_aux'
 
     #for consulta in consultas:
-    for nombre_archivo, enlace in consultas.loc[0,'enlaces'].items():
-        save_path = '../Consultas_aux'
-        ruta_archivo = os.path.normpath(os.path.join(save_path, nombre_archivo + '.pdf'))
-        descargar_archivos(enlace,ruta_archivo)
+    for index, row in consultas.iterrows():
+        nombre_consulta = row['nombre']
+
+        for nombre_documento, enlace in row['enlaces'].items():
+            nombre_archivo = nombre_documento + ' - ' + nombre_consulta + '.pdf'
+            ruta_archivo = r"\\?\{}".format(os.path.abspath(os.path.join(save_path, limpiar_caracteres(nombre_archivo))))
+            print("Longitud de la ruta:", len(ruta_archivo))
+            descargar_archivos(enlace,ruta_archivo)
