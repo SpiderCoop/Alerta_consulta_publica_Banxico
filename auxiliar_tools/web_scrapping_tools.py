@@ -46,7 +46,7 @@ def limpiar_caracteres(texto):
 
 # Funciones ------------------------------------------------------------------------------------------
 
-def configurar_driver(directorio_descarga: str) -> webdriver.Chrome:
+def configurar_driver(directorio_descarga:str = None) -> webdriver.Chrome:
     """
     Configura el driver de Selenium con opciones para GitHub Actions y descargas en un directorio específico.
 
@@ -57,7 +57,7 @@ def configurar_driver(directorio_descarga: str) -> webdriver.Chrome:
         webdriver.Chrome: Instancia del driver configurado.
     """
     # Crear el directorio de descarga si no existe
-    if not os.path.exists(directorio_descarga):
+    if directorio_descarga and not os.path.exists(directorio_descarga):
         os.makedirs(directorio_descarga)
 
     # Configura opciones para Chrome
@@ -75,6 +75,7 @@ def configurar_driver(directorio_descarga: str) -> webdriver.Chrome:
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")  # Solucionar problemas de memoria compartida
     chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-logging")  # Desactivar logs de DevTools
     chrome_options.add_argument("--start-maximized")
 
     # Iniciar el driver usando webdriver-manager para instalar ChromeDriver automáticamente
@@ -159,7 +160,7 @@ def obtener_consultas_Banxico(driver, vigentes:bool=True):
 
 
 # Funcion para descrgar archivos dada una url y destino de descarga
-def descargar_archivos(url, ruta_archivo):
+def descargar_archivo(url, file_path):
     """
     Descarga los archivos disponibles en una consulta específica utilizando requests.
     """
@@ -170,11 +171,38 @@ def descargar_archivos(url, ruta_archivo):
     # Verifica si la solicitud fue exitosa (código de estado 200)
     if response.status_code == 200:
         # Abre el archivo en modo binario y escribe los datos descargados
-        with open(ruta_archivo, 'wb') as f:
+        with open(file_path, 'wb') as f:
             f.write(response.content)
 
     else:
         raise FileNotFoundError("/n Error al descargar el archivo.")
+    
+
+
+def descargar_consultas(consultas, save_path):
+    """
+    Descarga los archivos disponibles en una consulta específica utilizando requests.
+    """
+
+    # Crear carpeta para guardar archivos descargados
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+    
+    # Inicializamos una lista para guardar los nombres de los archivos descargados
+    archivos_descargados = []
+
+    # Descargar cada archivo
+    for index, row in consultas.iterrows():
+        nombre_consulta = row['nombre']
+
+        for nombre_documento, enlace in row['enlaces'].items():
+            nombre_archivo = nombre_documento + ' - ' + nombre_consulta
+            file_path = os.path.join(save_path, limpiar_caracteres(nombre_archivo))
+            file_path = os.path.normpath(file_path[:50] + '.pdf')
+            descargar_archivo(enlace, file_path)
+            archivos_descargados.append(file_path)
+    
+    return archivos_descargados
 
 
 
@@ -188,22 +216,12 @@ if __name__ == "__main__":
     sys.path.append(script_dir)
     os.chdir(script_dir)
 
-    # Variables para prueba
-    save_path = '../Consultas_publicas'
-
     # Configurar driver
-    driver = configurar_driver(save_path)
-    consultas = obtener_consultas_Banxico(driver, False)
+    driver = configurar_driver()
+    consultas = obtener_consultas_Banxico(driver, vigentes=False)
     
     # Precede la ruta absoluta con \\?\ para habilitar rutas largas en Windows
-    save_path = '../Consultas_aux'
+    save_path = r"\?{}".format(os.path.join(script_dir, '../Consultas_publicas'))
+    print(save_path)
 
-    #for consulta in consultas:
-    for index, row in consultas.iterrows():
-        nombre_consulta = row['nombre']
-
-        for nombre_documento, enlace in row['enlaces'].items():
-            nombre_archivo = nombre_documento + ' - ' + nombre_consulta + '.pdf'
-            ruta_archivo = r"\\?\{}".format(os.path.abspath(os.path.join(save_path, limpiar_caracteres(nombre_archivo))))
-            print("Longitud de la ruta:", len(ruta_archivo))
-            descargar_archivos(enlace,ruta_archivo)
+    descargar_consultas(consultas, save_path)
