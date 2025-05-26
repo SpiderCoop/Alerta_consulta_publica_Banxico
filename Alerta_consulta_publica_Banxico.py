@@ -83,5 +83,10 @@ if not consultas.empty:
             with open(log_envios_path,'a') as archivo_logs:
                 archivo_logs.write(nombre_consulta + '\n')
 
+            # Una vez enviado el correo, se eliminan los archivos descargados
+            for archivo in archivos_publicacion:
+                if os.path.exists(archivo):
+                    os.remove(archivo)
+
 else:
     print("No hay consultas vigentes en Banxico en este momento.")
