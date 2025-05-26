@@ -20,6 +20,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
+from selenium.common.exceptions import NoSuchElementException
 from webdriver_manager.chrome import ChromeDriverManager
 
 import time
@@ -135,23 +136,34 @@ def obtener_consultas_Banxico(driver, vigentes:bool=True):
     # Extraer información de los proyectos de disposiciones
     consultas = []
     for li in li_elements:
+
         # Nombre del proyecto
-        nombre_proyecto = li.text.split("\n")[0]  # Primera línea es el nombre del proyecto
+        try:
+            nombre_proyecto = li.text.split("\n")[0]  # Primera línea es el nombre del proyecto
+        except NoSuchElementException:
+            nombre_proyecto = None
 
         # Fecha límite
-        fecha_limite = li.find_element(By.CSS_SELECTOR, "span").text.strip()
+        try:
+            fecha_limite = li.find_element(By.CSS_SELECTOR, "span").text.strip()
+        except NoSuchElementException:
+            fecha_limite = None
 
         # Enlaces de descarga
-        enlaces = li.find_elements(By.CSS_SELECTOR, "a.button")
-        enlaces_descarga = {enlace.text.strip(): enlace.get_attribute("href") for enlace in enlaces}
+        try:
+            enlaces = li.find_elements(By.CSS_SELECTOR, "a.button")
+            enlaces_descarga = {enlace.text.strip(): enlace.get_attribute("href") for enlace in enlaces}
+        except NoSuchElementException:
+            enlaces_descarga = {}
 
         # Agregar a la lista de consultas
-        consultas.append({
-            "nombre": nombre_proyecto,
-            "fecha_limite": fecha_limite,
-            "enlaces": enlaces_descarga
-        })
-
+        if nombre_proyecto and fecha_limite and enlaces_descarga:
+            consultas.append({
+                "nombre": nombre_proyecto,
+                "fecha_limite": fecha_limite,
+                "enlaces": enlaces_descarga
+            })
+    
     # Una vez terimando el proceso, cierra el navegador
     driver.quit()
     
@@ -160,10 +172,13 @@ def obtener_consultas_Banxico(driver, vigentes:bool=True):
 
 
 # Funcion para descrgar archivos dada una url y destino de descarga
-def descargar_archivo(url, file_path):
+def descargar_archivo(url, nombre_archivo, save_path):
     """
     Descarga los archivos disponibles en una consulta específica utilizando requests.
     """
+
+    file_path = os.path.join(save_path, limpiar_caracteres(nombre_archivo))
+    file_path = os.path.normpath(file_path[:150] + '.pdf')
 
     # Realizar la solicitud HTTP para obtener el contenido de la página web
     response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
@@ -177,51 +192,5 @@ def descargar_archivo(url, file_path):
     else:
         raise FileNotFoundError("/n Error al descargar el archivo.")
     
+    return file_path
 
-
-def descargar_consultas(consultas, save_path):
-    """
-    Descarga los archivos disponibles en una consulta específica utilizando requests.
-    """
-
-    # Crear carpeta para guardar archivos descargados
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
-    
-    # Inicializamos una lista para guardar los nombres de los archivos descargados
-    archivos_descargados = []
-
-    # Descargar cada archivo
-    for index, row in consultas.iterrows():
-        nombre_consulta = row['nombre']
-
-        for nombre_documento, enlace in row['enlaces'].items():
-            nombre_archivo = nombre_documento + ' - ' + nombre_consulta
-            file_path = os.path.join(save_path, limpiar_caracteres(nombre_archivo))
-            file_path = os.path.normpath(file_path[:50] + '.pdf')
-            descargar_archivo(enlace, file_path)
-            archivos_descargados.append(file_path)
-    
-    return archivos_descargados
-
-
-
-# Ejemplo de uso
-if __name__ == "__main__":
-
-    import sys
-
-    # Obtener la ruta del directorio del archivo de script actual para establecer el directorio de trabajo
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    sys.path.append(script_dir)
-    os.chdir(script_dir)
-
-    # Configurar driver
-    driver = configurar_driver()
-    consultas = obtener_consultas_Banxico(driver, vigentes=False)
-    
-    # Precede la ruta absoluta con \\?\ para habilitar rutas largas en Windows
-    save_path = r"\?{}".format(os.path.join(script_dir, '../Consultas_publicas'))
-    print(save_path)
-
-    descargar_consultas(consultas, save_path)
