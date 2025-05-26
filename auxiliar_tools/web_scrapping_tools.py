@@ -178,7 +178,7 @@ def descargar_archivo(url, nombre_archivo, save_path):
     """
 
     file_path = os.path.join(save_path, limpiar_caracteres(nombre_archivo))
-    file_path = os.path.normpath(file_path[:150] + '.pdf')
+    file_path = os.path.normpath(file_path[:160] + '.pdf')
 
     # Realizar la solicitud HTTP para obtener el contenido de la página web
     response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
