@@ -1,0 +1,59 @@
+name: Deploy and Run Script
+
+on:
+  schedule:
+    - cron: '0 13 * * *' # Ejecuta a la 1:00 PM UTC (8:00 AM CDMX)
+    - cron: '0 18 * * *'
+    - cron: '0 21 * * *'
+    - cron: '0 23 * * *'
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      customMessage:
+        description: "Ejecucion manual del flujo"
+        required: false
+        default: "Manual execution triggered"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip setuptools wheel
+        pip install -r requirements.txt
+        pip install python-dotenv
+
+    - name: Run script
+      env:
+        Cuenta: ${{ secrets.CUENTA_CORREO }}
+        password: ${{ secrets.PASSWORD_CUENTA }}
+        Destinatarios: ${{ secrets.DESTINATARIOS }}
+      run: |
+        source venv/bin/activate
+        python Alerta_consulta_publica_Banxico.py
+
+    - name: Commit and push changes
+      run: |
+        git config --local user.name "github-actions[bot]"
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        if [ -n "$(git status --porcelain)" ]; then
+          git add .
+          git commit -m "Actualización automática del archivo"
+          git push
+        else
+          echo "No changes to commit"
+        fi
