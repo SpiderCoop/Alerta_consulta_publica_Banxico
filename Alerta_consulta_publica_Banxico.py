@@ -69,15 +69,14 @@ if not consultas.empty:
                 archivos_publicacion.append(file_path)
                 nueva_publicacion = True
 
-        # Si hay un nuevo archivo se envia por correo
+        # Si hay una nueva publicacion se envia por correo
         if nueva_publicacion:
 
-            # Se envian los archivos descargados por correo
-            # Se define el asunto y el cuerpo del correo
+            # Se envian la notificacion de la nueva publicacion con los archivos descargados por correo
             asunto = f'Nueva Consulta Publica Banxico - {nombre_consulta}'
             cuerpo_correo = "Se han descargado los siguientes archivos de la consulta pública de Banxico:\n\n"
 
-            # Se envia el correo con comentarios y el reporte adjunto
+            # Se envia el correo con los docuemntos adjuntos
             enviar_correo(cuenta,password,destinatarios,asunto,cuerpo_correo, adjuntos=archivos_publicacion)
 
             # Una vez enviado, se guarda en el registro de envios para no volver a enviar el mismo archivo
