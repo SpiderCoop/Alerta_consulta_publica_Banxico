@@ -33,7 +33,7 @@ def revisar_registros_envio(nombre_consulta:str, save_path:str):
 
 
 # Funcion para mantener el flujo habilitado creando diferencias en el repositorio y crear commits artificiales
-def mantener_flujo(save_path:str = os.path.normpath('Consultas_aux\\mantener_flujo.txt')):
+def mantener_flujo(save_path:str = os.path.normpath(os.path.join('Consultas_aux', 'mantener_flujo.txt'))):
     
     # Carpeta donde se guardarán los archivos descargados
     if not os.path.exists(os.path.dirname(save_path)):
