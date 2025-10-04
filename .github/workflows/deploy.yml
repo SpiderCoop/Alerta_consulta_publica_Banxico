@@ -3,9 +3,8 @@ name: Deploy and Run Script
 on:
   schedule:
     - cron: '0 13 * * *' # Ejecuta a la 1:00 PM UTC (8:00 AM CDMX)
-    - cron: '0 18 * * *'
-    - cron: '0 21 * * *'
-    - cron: '0 23 * * *'
+    - cron: '0 16 * * *'
+    - cron: '0 19 * * *'
   push:
     branches:
       - main
