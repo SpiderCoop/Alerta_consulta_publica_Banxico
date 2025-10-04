@@ -77,7 +77,7 @@ if not consultas.empty:
 
             # Se envian la notificacion de la nueva publicacion con los archivos descargados por correo
             asunto = f'Nueva Consulta Publica Banxico - {nombre_consulta}'
-            cuerpo_correo = f"Se ha publicado una nueva consulta pública en la página de Banco de México con fecha límite al {fecha_limite} \n\n"
+            cuerpo_correo = f"Se ha publicado una nueva consulta pública en la página de Banco de México. {fecha_limite} \n\n"
 
             # Se envia el correo con los docuemntos adjuntos
             enviar_correo(cuenta,password,destinatarios,asunto,cuerpo_correo, adjuntos=archivos_publicacion)
@@ -90,9 +90,6 @@ if not consultas.empty:
             for archivo in archivos_publicacion:
                 if os.path.exists(archivo):
                     os.remove(archivo)
-            
-        else:
-            print(f"No hay nuevas publicaciones")
 
 else:
     print("No hay consultas vigentes en Banxico en este momento.")
