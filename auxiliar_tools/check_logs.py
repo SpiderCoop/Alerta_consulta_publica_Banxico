@@ -20,7 +20,7 @@ def revisar_registros_envio(nombre_consulta:str, save_path:str):
             archivo_logs.write('Archivos enviados\n')
         nuevo = True
     else:
-        with open(save_path,'r') as archivo_logs:
+        with open(save_path,'r', encoding='latin-1') as archivo_logs:
             archivos_enviados = set(archivo_logs.read().splitlines())
     
         if nombre_consulta in archivos_enviados:
