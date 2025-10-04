@@ -6,6 +6,7 @@ Created on Mon May 26 10:14:41 2025
 """
 # Librerias necesarias ------------------------------------------------------------------------------------------
 import os
+import random
 
 # Funcion de verificacion de si la consulta ya se ha enviado o no
 def revisar_registros_envio(nombre_consulta:str, save_path:str):
@@ -29,4 +30,16 @@ def revisar_registros_envio(nombre_consulta:str, save_path:str):
             nuevo = True
     
     return nuevo
+
+
+# Funcion para mantener el flujo habilitado creando diferencias en el repositorio y crear commits artificiales
+def mantener_flujo(save_path:str = os.path.normpath('Consultas_aux\\mantener_flujo.txt')):
+    
+    # Carpeta donde se guardarán los archivos descargados
+    if not os.path.exists(os.path.dirname(save_path)):
+        os.makedirs(os.path.dirname(save_path))
+
+    # Crea un archivo con un numero aleatorio
+    with open(save_path,'w') as archivo_logs:
+        archivo_logs.write(f'{random.randint(0,1)}')
 

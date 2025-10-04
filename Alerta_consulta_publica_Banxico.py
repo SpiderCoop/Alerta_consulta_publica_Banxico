@@ -15,7 +15,7 @@ import pandas as pd
 from dotenv import load_dotenv
 
 from auxiliar_tools.web_scrapping_tools import configurar_driver, obtener_consultas_Banxico, descargar_archivo
-from auxiliar_tools.check_logs import revisar_registros_envio
+from auxiliar_tools.check_logs import revisar_registros_envio, mantener_flujo
 from auxiliar_tools.mail_tools import enviar_correo
 
 
@@ -44,6 +44,7 @@ driver = configurar_driver()
 
 # Flujo de trabajo -------------------------------------------------------------------------
 
+mantener_flujo() # funcion auxiliar para mantener habilitado el flujo
 
 # Obtener las consultas vigentes
 consultas = obtener_consultas_Banxico(driver, vigentes=True)
