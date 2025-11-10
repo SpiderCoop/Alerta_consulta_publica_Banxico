@@ -12,18 +12,13 @@ import re
 
 import requests
 
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import NoSuchElementException
-from webdriver_manager.chrome import ChromeDriverManager
 
-import time
+from driver_configuration import driver_configuration
 
 # Funcion auxiliar -------------------------------
 
@@ -47,52 +42,8 @@ def limpiar_caracteres(texto):
 
 # Funciones ------------------------------------------------------------------------------------------
 
-def configurar_driver(directorio_descarga:str = None) -> webdriver.Chrome:
-    """
-    Configura el driver de Selenium con opciones para GitHub Actions y descargas en un directorio específico.
-
-    Args:
-        directorio_descarga (str): Ruta donde se guardarán los archivos descargados.
-
-    Returns:
-        webdriver.Chrome: Instancia del driver configurado.
-    """
-    # Asegurarse que el directorio de descarga sea absoluto y existe
-    if directorio_descarga:
-        if not os.path.isabs(directorio_descarga):
-            directorio_descarga = os.path.abspath(directorio_descarga)
-        if not os.path.exists(directorio_descarga):
-            os.makedirs(directorio_descarga)
-
-    # Configura opciones para Chrome
-    chrome_options = Options()
-    chrome_options.add_experimental_option("prefs", {
-        "download.default_directory": directorio_descarga, # Directorio para descargas
-        "download.prompt_for_download": False,             # Evitar ventana de diálogo de descarga
-        "download.directory_upgrade": True,                # Actualizar directorios automáticamente
-        "safebrowsing.enabled": True                       # Habilitar navegación segura
-    })
-
-    # Configuraciones para entornos sin interfaz gráfica (headless)
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")  # Solucionar problemas de memoria compartida
-    chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--disable-logging")  # Desactivar logs de DevTools
-    chrome_options.add_argument("--start-maximized")
-
-    # Iniciar el driver usando webdriver-manager para instalar ChromeDriver automáticamente
-    driver = webdriver.Chrome(
-        service=Service(ChromeDriverManager().install()),
-        options=chrome_options
-    )
-
-    return driver
-
-
 # Funcion para revisar la pagina de consultas publicas de Banxico
-def obtener_consultas_Banxico(driver, vigentes:bool=True):
+def obtener_consultas_Banxico(vigentes:bool=True):
     """
     Obtiene la lista de consultas públicas abiertas de la página de Banxico usando Selenium.
     """
@@ -105,6 +56,7 @@ def obtener_consultas_Banxico(driver, vigentes:bool=True):
         vigentes_txt = 'historicas'
 
     # Navegar a la pagina especificada
+    driver = driver_configuration()
     driver.get(url)
     wait = WebDriverWait(driver, 10)
     

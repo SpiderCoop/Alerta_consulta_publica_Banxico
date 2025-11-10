@@ -14,7 +14,7 @@ import pandas as pd
 
 from dotenv import load_dotenv
 
-from auxiliar_tools.web_scrapping_tools import configurar_driver, obtener_consultas_Banxico, descargar_archivo
+from auxiliar_tools.web_scrapping_tools import obtener_consultas_Banxico, descargar_archivo
 from auxiliar_tools.check_logs import revisar_registros_envio, mantener_flujo
 from auxiliar_tools.mail_tools import enviar_correo
 
@@ -38,16 +38,12 @@ save_download_path = os.path.join(script_dir, 'Consultas_publicas')
 
 log_envios_path = os.path.normpath(os.path.join(save_logs_path, 'logs_envios.txt'))
 
-# Configurar driver
-driver = configurar_driver()
-
-
 # Flujo de trabajo -------------------------------------------------------------------------
 
 mantener_flujo() # funcion auxiliar para mantener habilitado el flujo
 
 # Obtener las consultas vigentes
-consultas = obtener_consultas_Banxico(driver, vigentes=True)
+consultas = obtener_consultas_Banxico(vigentes=True)
 
 # En caso de que existan consulta, se procesan los archivos
 if not consultas.empty:
@@ -77,7 +73,7 @@ if not consultas.empty:
 
             # Se envian la notificacion de la nueva publicacion con los archivos descargados por correo
             asunto = f'Nueva Consulta Publica Banxico - {nombre_consulta}'
-            cuerpo_correo = f"Se ha publicado una nueva consulta pública en la página de Banco de México. {fecha_limite} \n\n"
+            cuerpo_correo = f"Se ha publicado una nueva consulta pública en la página de Banco de México.<br><b>{fecha_limite}</b>"
 
             # Se envia el correo con los docuemntos adjuntos
             enviar_correo(cuenta,password,destinatarios,asunto,cuerpo_correo, adjuntos=archivos_publicacion)
