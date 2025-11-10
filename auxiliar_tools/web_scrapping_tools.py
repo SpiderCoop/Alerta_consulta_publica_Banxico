@@ -57,9 +57,12 @@ def configurar_driver(directorio_descarga:str = None) -> webdriver.Chrome:
     Returns:
         webdriver.Chrome: Instancia del driver configurado.
     """
-    # Crear el directorio de descarga si no existe
-    if directorio_descarga and not os.path.exists(directorio_descarga):
-        os.makedirs(directorio_descarga)
+    # Asegurarse que el directorio de descarga sea absoluto y existe
+    if directorio_descarga:
+        if not os.path.isabs(directorio_descarga):
+            directorio_descarga = os.path.abspath(directorio_descarga)
+        if not os.path.exists(directorio_descarga):
+            os.makedirs(directorio_descarga)
 
     # Configura opciones para Chrome
     chrome_options = Options()
@@ -177,6 +180,10 @@ def descargar_archivo(url, nombre_archivo, save_path):
     Descarga los archivos disponibles en una consulta específica utilizando requests.
     """
 
+    # Asegurar que save_path sea absoluto
+    if not os.path.isabs(save_path):
+        save_path = os.path.abspath(save_path)
+    
     file_path = os.path.join(save_path, limpiar_caracteres(nombre_archivo))
     file_path = os.path.normpath(file_path[:160] + '.pdf')
 

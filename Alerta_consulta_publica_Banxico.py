@@ -33,8 +33,8 @@ password = os.getenv('password')
 destinatarios = os.getenv("Destinatarios").split(',')
 
 # Variable para guardar los registros de envios y descargas
-save_logs_path = 'Consultas_aux'
-save_download_path = 'Consultas_publicas'
+save_logs_path = os.path.join(script_dir, 'Consultas_aux')
+save_download_path = os.path.join(script_dir, 'Consultas_publicas')
 
 log_envios_path = os.path.normpath(os.path.join(save_logs_path, 'logs_envios.txt'))
 
