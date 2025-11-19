@@ -14,7 +14,7 @@ import pandas as pd
 
 from dotenv import load_dotenv
 
-from auxiliar_tools.web_scrapping_tools import obtener_consultas_Banxico, descargar_archivo
+from auxiliar_tools.web_scrapping_tools import obtener_consultas_Banxico, descargar_archivo, limpiar_caracteres
 from auxiliar_tools.check_logs import revisar_registros_envio, mantener_flujo
 from auxiliar_tools.mail_tools import enviar_correo
 
@@ -52,7 +52,7 @@ if not consultas.empty:
     for index, row in consultas.iterrows():
         nombre_consulta = row['nombre']
         fecha_limite = row['fecha_limite']
-        nombre_consulta = nombre_consulta + "-" + row['fecha_limite']
+        nombre_consulta = limpiar_caracteres(nombre_consulta + "-" + row['fecha_limite'])
     
         # Inicializamos una lista para guardar los nombres de los archivos descargados
         nueva_publicacion = False
@@ -61,7 +61,7 @@ if not consultas.empty:
         # Para cada consulta se revisan los documentos y si hay nuevos, se descargan
         for nombre_documento, enlace in row['enlaces'].items():
             
-            nombre_archivo = nombre_documento + ' - ' + nombre_consulta
+            nombre_archivo = limpiar_caracteres(nombre_documento) + ' - ' + nombre_consulta
             nuevo = revisar_registros_envio(nombre_consulta, log_envios_path)        
             if nuevo:
                 file_path = descargar_archivo(enlace, nombre_archivo, save_download_path)
