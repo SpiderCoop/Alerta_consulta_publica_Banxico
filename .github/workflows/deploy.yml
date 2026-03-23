@@ -26,7 +26,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.x'
+        python-version: '3.12'
 
     - name: Install dependencies
       run: |
@@ -43,7 +43,7 @@ jobs:
         Destinatarios: ${{ secrets.DESTINATARIOS }}
       run: |
         source venv/bin/activate
-        python Alerta_consulta_publica_Banxico.py
+        python main.py
 
     - name: Commit and push changes
       run: |
