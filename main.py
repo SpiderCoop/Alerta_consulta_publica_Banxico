@@ -16,7 +16,8 @@ from dotenv import load_dotenv
 
 from auxiliar_tools.web_scrapping_tools import obtener_consultas_Banxico, descargar_archivo, limpiar_caracteres
 from auxiliar_tools.check_logs import revisar_registros_envio, mantener_flujo
-from auxiliar_tools.mail_tools import enviar_correo
+
+from email_automation.send_email import send_email
 
 
 # Configuracion iniacial -------------------------------------------------------------------------
@@ -76,7 +77,7 @@ if not consultas.empty:
             cuerpo_correo = f"Se ha publicado una nueva consulta pública en la página de Banco de México.<br><b>{fecha_limite}</b>"
 
             # Se envia el correo con los docuemntos adjuntos
-            enviar_correo(cuenta,password,destinatarios,asunto,cuerpo_correo, adjuntos=archivos_publicacion)
+            send_email(cuenta, password, destinatarios, asunto, cuerpo_correo, files=archivos_publicacion)
 
             # Una vez enviado, se guarda en el registro de envios para no volver a enviar el mismo archivo
             with open(log_envios_path,'a') as archivo_logs:
