@@ -3,6 +3,7 @@ certifi==2025.10.5
 cffi==2.0.0
 charset-normalizer==3.4.4
 driver_configuration @ git+https://github.com/SpiderCoop/Web_Scrapping_Driver.git@39e96ae3125fda1873191e26310c08910cc8cf56
+email_automation @ git+https://github.com/SpiderCoop/Email_Automation.git@0bec00d261316b2b2e50ff7accbc4e215037c54b
 h11==0.16.0
 idna==3.11
 numpy==2.3.4
