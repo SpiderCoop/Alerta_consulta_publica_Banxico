@@ -13,6 +13,7 @@ import os
 import pandas as pd
 
 from dotenv import load_dotenv
+import json
 
 from auxiliar_tools.web_scrapping_tools import obtener_consultas_Banxico, descargar_archivo, limpiar_caracteres
 from auxiliar_tools.check_logs import revisar_registros_envio, mantener_flujo
@@ -20,7 +21,7 @@ from auxiliar_tools.check_logs import revisar_registros_envio, mantener_flujo
 from email_automation.send_email import send_email
 
 
-# Configuracion iniacial -------------------------------------------------------------------------
+# Configuracion inicial -------------------------------------------------------------------------
 
 # Obtener la ruta del directorio del archivo de script actual para establecer el directorio de trabajo
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -31,7 +32,12 @@ os.chdir(script_dir)
 load_dotenv()
 cuenta = os.getenv('Cuenta')
 password = os.getenv('password')
-destinatarios = os.getenv("Destinatarios").split(',')
+destinatarios = json.loads(os.getenv("Destinatarios"))
+recipients = {
+    'to': destinatarios.get('to', '').split(',') if isinstance(destinatarios.get('to', ''), str) else destinatarios.get('to', []),
+    'cc': destinatarios.get('cc', '').split(',') if isinstance(destinatarios.get('cc', ''), str) else destinatarios.get('cc', []),
+    'bcc': destinatarios.get('bcc', '').split(',') if isinstance(destinatarios.get('bcc', ''), str) else destinatarios.get('bcc', []),
+    }
 
 # Variable para guardar los registros de envios y descargas
 save_logs_path = os.path.join(script_dir, 'Consultas_aux')
@@ -77,7 +83,7 @@ if not consultas.empty:
             cuerpo_correo = f"Se ha publicado una nueva consulta pública en la página de Banco de México.<br><b>{fecha_limite}</b>"
 
             # Se envia el correo con los docuemntos adjuntos
-            send_email(cuenta, password, destinatarios, asunto, cuerpo_correo, files=archivos_publicacion)
+            send_email(cuenta, password, asunto, cuerpo_correo, recipients.get('to'), recipients.get('cc'), recipients.get('bcc'), files=archivos_publicacion)
 
             # Una vez enviado, se guarda en el registro de envios para no volver a enviar el mismo archivo
             with open(log_envios_path,'a') as archivo_logs:
