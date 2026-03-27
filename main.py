@@ -7,10 +7,7 @@ Created on Sun Nov  24 14:18:41 2024
 
 # Librerias necesarias -------------------------------------------------------------------------
 
-import sys
 import os
-
-import pandas as pd
 
 from dotenv import load_dotenv
 import json
@@ -22,11 +19,6 @@ from email_automation.send_email import send_email
 
 
 # Configuracion inicial -------------------------------------------------------------------------
-
-# Obtener la ruta del directorio del archivo de script actual para establecer el directorio de trabajo
-script_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(script_dir)
-os.chdir(script_dir)
 
 # Se toma la cuenta del archivo .env
 load_dotenv()
@@ -40,10 +32,8 @@ recipients = {
     }
 
 # Variable para guardar los registros de envios y descargas
-save_logs_path = os.path.join(script_dir, 'Consultas_aux')
-save_download_path = os.path.join(script_dir, 'Consultas_publicas')
-
-log_envios_path = os.path.normpath(os.path.join(save_logs_path, 'logs_envios.txt'))
+save_download_path = "Consultas_publicas"
+log_envios_path = "Consultas_aux/logs_envios.txt"
 
 # Flujo de trabajo -------------------------------------------------------------------------
 
@@ -80,7 +70,11 @@ if not consultas.empty:
 
             # Se envian la notificacion de la nueva publicacion con los archivos descargados por correo
             asunto = f'Nueva Consulta Publica Banxico - {nombre_consulta}'
-            cuerpo_correo = f"Se ha publicado una nueva consulta pública en la página de Banco de México.<br><b>{fecha_limite}</b>"
+            cuerpo_correo = f"""
+            Se ha publicado una nueva consulta pública en la página de Banco de México.
+            <br><br><b>{fecha_limite}</b>
+            <br><br><i>Este es un correo enviado de forma automatizada.</i>
+            """
 
             # Se envia el correo con los docuemntos adjuntos
             send_email(cuenta, password, asunto, cuerpo_correo, recipients.get('to'), recipients.get('cc'), recipients.get('bcc'), files=archivos_publicacion)
