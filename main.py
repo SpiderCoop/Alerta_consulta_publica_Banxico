@@ -62,7 +62,7 @@ if not consultas.empty:
             """
 
             # Se envia el correo con los docuemntos adjuntos
-            email.send(asunto, cuerpo_correo, recipients.get('to'), recipients.get('cc'), recipients.get('bcc'), files=[archivos_publicacion])
+            email.send(asunto, cuerpo_correo, recipients.get('to'), recipients.get('cc'), recipients.get('bcc'), files=archivos_publicacion)
 
             # Una vez enviado, se guarda en el registro de envios para no volver a enviar el mismo archivo
             with open(log_envios_path,'a') as archivo_logs:
