@@ -15,25 +15,10 @@ import json
 from auxiliar_tools.web_scrapping_tools import obtener_consultas_Banxico, descargar_archivo, limpiar_caracteres
 from auxiliar_tools.check_logs import revisar_registros_envio, mantener_flujo
 
-from email_automation.send_email import send_email
+from auxiliar_tools.email_manager import email
 
+from config import *
 
-# Configuracion inicial -------------------------------------------------------------------------
-
-# Se toma la cuenta del archivo .env
-load_dotenv()
-cuenta = os.getenv('Cuenta')
-password = os.getenv('password')
-destinatarios = json.loads(os.getenv("Destinatarios"))
-recipients = {
-    'to': destinatarios.get('to', '').split(',') if isinstance(destinatarios.get('to', ''), str) else destinatarios.get('to', []),
-    'cc': destinatarios.get('cc', '').split(',') if isinstance(destinatarios.get('cc', ''), str) else destinatarios.get('cc', []),
-    'bcc': destinatarios.get('bcc', '').split(',') if isinstance(destinatarios.get('bcc', ''), str) else destinatarios.get('bcc', []),
-    }
-
-# Variable para guardar los registros de envios y descargas
-save_download_path = "Consultas_publicas"
-log_envios_path = "Consultas_aux/logs_envios.txt"
 
 # Flujo de trabajo -------------------------------------------------------------------------
 
@@ -77,7 +62,7 @@ if not consultas.empty:
             """
 
             # Se envia el correo con los docuemntos adjuntos
-            send_email(cuenta, password, asunto, cuerpo_correo, recipients.get('to'), recipients.get('cc'), recipients.get('bcc'), files=archivos_publicacion)
+            email.send(asunto, cuerpo_correo, recipients.get('to'), recipients.get('cc'), recipients.get('bcc'), files=[archivos_publicacion])
 
             # Una vez enviado, se guarda en el registro de envios para no volver a enviar el mismo archivo
             with open(log_envios_path,'a') as archivo_logs:
