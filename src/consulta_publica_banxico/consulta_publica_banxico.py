@@ -5,13 +5,14 @@ Date:          2026-08-29
 """
 
 import os
-from src.consulta_publica_banxico.web_scrapper import obtener_consultas_banxico
-from src.services.download_service import download_file
-from src.services.clean_text import clean_text
-from src.services.log_service import LogService
-from src.services.email_manager import email
+
+from src.config import RECIPIENTS, SAVE_DOWNLOAD_DIR_PATH
 from src.consulta_publica_banxico.email_body import create_email_body
-from src.config import SAVE_DOWNLOAD_DIR_PATH, RECIPIENTS
+from src.consulta_publica_banxico.web_scrapper import obtener_consultas_banxico
+from src.services.clean_text import clean_text
+from src.services.download_service import download_file
+from src.services.email_manager import email
+from src.services.log_service import LogService
 
 
 def enviar_consultas_banxico():

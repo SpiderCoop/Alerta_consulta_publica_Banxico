@@ -33,5 +33,5 @@ def clean_text(texto):
     }
 
     # Reemplazar cada carácter acentuado por su equivalente sin acento
-    patron = re.compile("|".join(re.escape(k) for k in acentos.keys()))
+    patron = re.compile("|".join(re.escape(k) for k in acentos))
     return patron.sub(lambda x: acentos[x.group()], texto)

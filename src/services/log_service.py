@@ -7,6 +7,7 @@ Date:          2026-08-28
 import datetime as dt
 import os
 import sqlite3
+from zoneinfo import ZoneInfo
 
 from src.config import LOG_DELIVERIES_PATH
 
@@ -45,7 +46,10 @@ class LogService:
                 INSERT INTO deliveries (publication_name, deliver_date)
                 VALUES (?, ?)
                 """,
-                (publication_name, dt.datetime.now().isoformat()),
+                (
+                    publication_name,
+                    dt.datetime.now(ZoneInfo("America/Mexico_City")).isoformat(),
+                ),
             )
 
     def check_delivery(self, publication_name: str) -> bool:

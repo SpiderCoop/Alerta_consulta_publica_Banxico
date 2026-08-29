@@ -5,12 +5,11 @@ Date:          2026-08-29
 """
 
 import pandas as pd
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException
-
 from driver_configuration import driver_configuration
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 # Funciones ------------------------------------------------------------------------------------------
 
@@ -47,9 +46,9 @@ def obtener_consultas_banxico(vigentes: bool = True):
         )
         li_vigentes.click()
 
-    except:
-        print("Error al seleccionar la tab")
+    except Exception as e:
         driver.quit()
+        raise ValueError(f"Error al hacer click en la tab: {e}") from e
 
     try:
         # Esperar a que se cargue la tabla de contenido
@@ -58,11 +57,11 @@ def obtener_consultas_banxico(vigentes: bool = True):
         # Buscar todos los <li> dentro del <div> con class "rconrners"
         li_elements = vigentes_div.find_elements(By.CSS_SELECTOR, "li")
 
-    except:
+    except Exception as e:
         driver.quit()
         raise ValueError(
-            "Error al buscar los elementos con la informacion de los proyectos de disposiciones"
-        )
+            f"Error al buscar los elementos con la informacion de los proyectos de disposiciones: {e}"
+        ) from e
 
     # Extraer información de los proyectos de disposiciones
     consultas = []
