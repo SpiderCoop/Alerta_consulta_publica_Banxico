@@ -27,7 +27,7 @@ def enviar_consultas_banxico():
     consultas = obtener_consultas_banxico(vigentes=True)
     if not consultas.empty:
         # Iteramos sobre cada registro de consulta
-        for index, row in consultas.iterrows():
+        for _index, row in consultas.iterrows():
             nombre_consulta = row["nombre"]
             fecha_limite = row["fecha_limite"]
             nombre_consulta = clean_text(nombre_consulta + " - " + row["fecha_limite"])
@@ -44,7 +44,7 @@ def enviar_consultas_banxico():
                     nombre_archivo = (
                         clean_text(nombre_documento) + " - " + nombre_consulta
                     )
-                    nombre_archivo = nombre_archivo.replace("/", "_")[:150]
+                    nombre_archivo = nombre_archivo.replace("/", "_")[:150] + ".pdf"
                     file_path = download_file(
                         enlace, nombre_archivo, SAVE_DOWNLOAD_DIR_PATH
                     )
