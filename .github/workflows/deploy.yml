@@ -42,7 +42,7 @@ jobs:
         Cuenta: ${{ secrets.CUENTA_CORREO }}
         password: ${{ secrets.PASSWORD_CUENTA }}
         Destinatarios: ${{ secrets.DESTINATARIOS }}
-      run: uv run python src/main.py
+      run: uv run python -m src.main
 
     - name: Commit and push changes
       run: |
