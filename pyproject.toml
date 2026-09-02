@@ -1,0 +1,27 @@
+[project]
+name = "alerta-publicaciones"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "SpiderCoop", email = "david.jimenez.cooper@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pandas==2.3.3",
+    "numpy==2.3.4",
+    "python-dotenv==1.2.1",
+    "requests==2.32.5",
+    "urllib3==2.5.0",
+    "selenium==4.38.0",
+    "driver-configuration",
+    "email-automation-sc==1.0.1",
+]
+
+[tool.uv.sources]
+driver-configuration = { git = "https://github.com/SpiderCoop/Web_Scrapping_Driver.git", rev = "39e96ae3125fda1873191e26310c08910cc8cf56" }
+
+[dependency-groups]
+dev = [
+    "ruff>=0.16.5",
+]
