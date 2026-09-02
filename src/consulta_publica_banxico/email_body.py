@@ -15,7 +15,7 @@ def create_email_body(nombre_consulta, fecha_limite):
         archivos_publicacion (list): Lista de nombres de archivos descargados.
 
     Returns:
-        str: Cuerpo del correo electrónico.
+        tuple: Asunto y cuerpo del correo electrónico.
     """
 
     asunto = f"Nueva Consulta Publica Banxico - {nombre_consulta}"
